@@ -7,3 +7,6 @@ Removing primers using cutadapt. I used anchored primer removal but allowing err
 
 # 20200114_filtandtrim.R
 filterAndTrim step of dada2
+
+# 20200114_infer_ASVs.R
+filterAndTrim step of dada2
