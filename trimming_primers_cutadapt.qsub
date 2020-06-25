@@ -1,0 +1,70 @@
+#!/bin/bash
+#$ -S /bin/bash
+#$ -V
+#$ -wd /projet/umr7144/mapp/mcamaradosreis/ehuxleyi_microbiome/archives/all_data/
+#$ -q short.q
+#$ -pe thread 16
+
+N=16
+
+export TMPDIR=/projet/umr7144/mapp/mcamaradosreis/ehuxleyi_microbiome/archives/all_data/
+
+source $CONDA3/activate cutadapt-2.8
+
+PRIMER_F="^GTGYCAGCMGCCGCGGTAA"
+PRIMER_R="^CCGYCAATTYMTTTRAGTTT"
+
+####Microbiome data####
+#######################
+
+RUNID="C9N55_L001_"
+LOG="${RUNID}_microbiome_primer_trim.log"
+MANIFEST="manifest_microbiome.txt"
+
+echo 'sample in_reads out_reads w/adapters w/adapters2' > ${LOG}
+
+ls /projet/umr7144/mapp/mcamaradosreis/ehuxleyi_microbiome/archives/all_data/ | sort | grep _R[12].fastq.gz | \
+    gawk '{
+        for (i =1; i <= NF; i++){
+            sample = $0
+            sub(/_L001_R[12].+$/,"",sample)
+            if (/_R1\.fastq.gz/)
+                forward[sample]=$0
+            if (/_R2\.fastq.gz/)
+                reverse[sample]=$0
+        }
+    }
+    END {
+        for (i in forward){
+            print i " " "/projet/umr7144/mapp/mcamaradosreis/ehuxleyi_microbiome/archives/all_data/" forward[i] " " "/projet/umr7144/mapp/mcamaradosreis/ehuxleyi_microbiome/archives/all_data/" reverse[i]
+        }
+    }' > ${MANIFEST}
+
+trimonly() {
+    TMP_CUT_F=$(mktemp --tmpdir="/projet/umr7144/mapp/mcamaradosreis/ehuxleyi_microbiome/archives/all_data/")
+    TMP_CUT_R=$(mktemp --tmpdir="/projet/umr7144/mapp/mcamaradosreis/ehuxleyi_microbiome/archives/all_data/")
+    TMP_LOG=$(mktemp --tmpdir="/projet/umr7144/mapp/mcamaradosreis/ehuxleyi_microbiome/archives/all_data/")
+    
+    cutadapt -g "${PRIMER_F}" -G "${PRIMER_R}" --report=minimal --discard-untrimmed --minimum-length 75 -o ${TMP_CUT_F} -p ${TMP_CUT_R} ${FORWARD} ${REVERSE} 1>> ${TMP_LOG}
+
+    gawk -v a="${OUTPUT}" '{
+        if(NR == 1)
+            for (i = 1; i <= NF; i++)
+                var[i] = $i
+        else if(NR == 2)
+            print a,$2,$7+var[7],$8+var[11],$11+var[8]
+    }' ${TMP_LOG} >> ${LOG}
+    
+    cat ${TMP_CUT_F}  | gzip > "FWD/${OUTPUT}_R1_trimmed.fastq.gz"
+    cat ${TMP_CUT_R}  | gzip > "REV/${OUTPUT}_R2_trimmed.fastq.gz"
+    
+    rm -f "${TMP_CUT_F}" "${TMP_CUT_R}" "${TMP_LOG}"
+}
+
+while read OUTPUT FORWARD REVERSE; do
+    ((i=i%N)); ((i++==0)) && wait
+    trimonly &    
+done < "${MANIFEST}"
+   
+wait
+
