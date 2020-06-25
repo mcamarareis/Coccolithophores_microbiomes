@@ -1,5 +1,7 @@
 This repository gathers all the scripts for analysis of E. huxleyi microbiome from raw dereplicated reads, to the final ASV table
 
+# steps_analysis.pdf
+Workflow indicating the steps of the analysis performed
 
 # trimming_primers_cutadapt.qsub
 
