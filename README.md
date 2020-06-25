@@ -10,3 +10,6 @@ filterAndTrim step of dada2
 
 # 20200114_infer_ASVs.R
 Learning errors, denoising, chimera removal and taxonomic assignation
+
+# 200509_pre_processing_ehux.R
+Manipulation of tables and some analysis in R
