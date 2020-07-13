@@ -19,5 +19,5 @@ Manipulation of tables and filtering seqs out of legth range
 # 5 - 200705_analysis_ehux.R
 Performing first analysis of stability, concatenating microbiomes of the same culture and plotting diversity
 
-# 5 - 200712_RDA_ehux.R
+# § - 200712_RDA_ehux.R
 Performing PCA, RDA and testing possible drivers of microbiome diversity
