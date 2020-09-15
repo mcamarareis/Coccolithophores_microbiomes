@@ -44,10 +44,13 @@ seqtab <- makeSequenceTable(mergers)
 saveRDS(seqtab, "200406_seqtab.rds")
 
 sum(seqtab)
+
 #Chimera removal#
-seqtab_nochimera <- removeBimeraDenovo(seqtab, method="consensus", verbose=TRUE)
+
+seqtab_nochimera <- removeBimeraDenovo(seqtab, method="pooled", minFoldParentOverAbundance=8, verbose=TRUE)
 sum(seqtab_nochimera)
-saveRDS(seqtab_nochimera, "200407_seqtab_nochimera.rds")
+saveRDS(seqtab_nochimera, "200701_seqtab_nochimera_pooled_newflag.rds")
+
 
 #Reads trhough the pipeline
 out <- readRDS("200407_out.rds")
