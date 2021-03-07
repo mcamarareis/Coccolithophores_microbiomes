@@ -1,13 +1,13 @@
 #!/bin/bash
 #$ -S /bin/bash
 #$ -V
-#$ -wd /projet/umr7144/mapp/mcamaradosreis/ehuxleyi_microbiome/archives/all_data/
+#$ -wd my_favorite_directory
 #$ -q short.q
 #$ -pe thread 16
 
 N=16
 
-export TMPDIR=/projet/umr7144/mapp/mcamaradosreis/ehuxleyi_microbiome/archives/all_data/
+export TMPDIR=my_favorite_directory
 
 source $CONDA3/activate cutadapt-2.8
 
@@ -23,7 +23,9 @@ MANIFEST="manifest_microbiome.txt"
 
 echo 'sample in_reads out_reads w/adapters w/adapters2' > ${LOG}
 
-ls /projet/umr7144/mapp/mcamaradosreis/ehuxleyi_microbiome/archives/all_data/ | sort | grep _R[12].fastq.gz | \
+#Make sure to include the path for the directory containing the raw demultiplexed reads that you want to remove primers#
+
+ls my_favorite_directory | sort | grep _R[12].fastq.gz | \
     gawk '{
         for (i =1; i <= NF; i++){
             sample = $0
@@ -36,14 +38,14 @@ ls /projet/umr7144/mapp/mcamaradosreis/ehuxleyi_microbiome/archives/all_data/ | 
     }
     END {
         for (i in forward){
-            print i " " "/projet/umr7144/mapp/mcamaradosreis/ehuxleyi_microbiome/archives/all_data/" forward[i] " " "/projet/umr7144/mapp/mcamaradosreis/ehuxleyi_microbiome/archives/all_data/" reverse[i]
+            print i " " "my_favorite_directory/" forward[i] " " "my_favorite_directory/" reverse[i]
         }
     }' > ${MANIFEST}
 
 trimonly() {
-    TMP_CUT_F=$(mktemp --tmpdir="/projet/umr7144/mapp/mcamaradosreis/ehuxleyi_microbiome/archives/all_data/")
-    TMP_CUT_R=$(mktemp --tmpdir="/projet/umr7144/mapp/mcamaradosreis/ehuxleyi_microbiome/archives/all_data/")
-    TMP_LOG=$(mktemp --tmpdir="/projet/umr7144/mapp/mcamaradosreis/ehuxleyi_microbiome/archives/all_data/")
+    TMP_CUT_F=$(mktemp --tmpdir="my_favorite_directory/")
+    TMP_CUT_R=$(mktemp --tmpdir="my_favorite_directory/")
+    TMP_LOG=$(mktemp --tmpdir="my_favorite_directory/")
     
     cutadapt -g "${PRIMER_F}" -G "${PRIMER_R}" --report=minimal --discard-untrimmed --minimum-length 75 -o ${TMP_CUT_F} -p ${TMP_CUT_R} ${FORWARD} ${REVERSE} 1>> ${TMP_LOG}
 
@@ -55,8 +57,8 @@ trimonly() {
             print a,$2,$7+var[7],$8+var[11],$11+var[8]
     }' ${TMP_LOG} >> ${LOG}
     
-    cat ${TMP_CUT_F}  | gzip > "FWD/${OUTPUT}_R1_trimmed.fastq.gz"
-    cat ${TMP_CUT_R}  | gzip > "REV/${OUTPUT}_R2_trimmed.fastq.gz"
+    cat ${TMP_CUT_F}  | gzip > "my_favorite_directory_output/${OUTPUT}_R1_trimmed.fastq.gz"
+    cat ${TMP_CUT_R}  | gzip > "my_favorite_directory_output/${OUTPUT}_R2_trimmed.fastq.gz"
     
     rm -f "${TMP_CUT_F}" "${TMP_CUT_R}" "${TMP_LOG}"
 }
