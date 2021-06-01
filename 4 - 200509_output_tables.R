@@ -69,7 +69,7 @@ dim(seqtab)
 dim(seqtab_nochimera)
 #' Checking % of ASVs remaining
 dim(seqtab_nochimera)/dim(seqtab)
-#' The majority (70%) of the ASVs was removed as chimera
+#' The majority of the ASVs was removed as chimera
 
 #' ## Checking sequences length distribution
 #' Before chimera removal
